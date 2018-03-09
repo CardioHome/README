@@ -1,0 +1,70 @@
+0.Introduction
+	0.1 An online demo in AWS: http://ec2-34-210-25-67.us-west-2.compute.amazonaws.com/dashboard
+	0.2 Github repo: http://github.com/CardioHome
+	0.3 Folder structure:
+		- CardioHomeWeb(web service)
+		- CardioHomeServices(micro services)
+			- auth
+			- data
+			- device_manager
+			- payment
+			- pubsub
+			- hippa
+			- nofitication
+			- connector(RPC)
+		- SensorSimulator(sensor simulation)
+	0.4 Most of functions are in `views.py` of each django project.
+	0.5 Database schema is presented in `models.py` of each django project.
+	0.6 Unit tests is presented in `tests.py` of each django project.
+	0.7 Team member roles:
+		David Fung: `auth`, `device_manager`, `data` services
+		Dong Liu: `payment` service
+		Simon: `pubsub` service, `connector`(RPC) tool, Angular frontend, web service
+
+1.Make sure Python3.6(or newer) and pip is installed in the computer.
+
+2.Setup python virtual environment
+	2.0 run `python3 -m venv ~/venv/cardio` 
+	2.1 run `source ~/venv/cardio/bin/activate` to activate the virtual environment
+
+3.Install python dependencies
+	3.0 run `cd CardioHomeServices` to goto CardioHomeServices folder 
+	3.1 run `pip install -r requirements.txt`
+
+4.Config 
+	4.0 run `cd connector` to goto connector folder
+	4.1 run `cp config_example.py config.py ` to copy the config template if `config.py` not exsting
+
+5.Install PostgreSQL 9.6
+	5.0 create a root user called `CardioHomeUser` with password `qwertyuiop`
+
+6.Start python server
+	6.0 add `connector`package to python path:
+		run `export PYTHONPATH=/path/to/....../CardioHomeServices/connector`
+	6.1 run `cd ..` to goto CardioHomeServices folder
+	6.2 migrate db and start 7 services
+		`python auth/manage.py migrate && python auth/manage.py runserver 127.0.0.1:9000`
+		`python device_manager/manage.py migrate && python auth/manage.py runserver 127.0.0.1:9001`
+		`python data/manage.py migrate && python auth/manage.py runserver 127.0.0.1:9002`
+		`python hippa/manage.py migrate && python auth/manage.py runserver 127.0.0.1:9003`
+		`python notification/manage.py migrate && python auth/manage.py runserver 127.0.0.1:9004`
+		`python payment/manage.py migrate && python auth/manage.py runserver 127.0.0.1:9005`
+		`python pubsub/manage.py migrate && python auth/manage.py runserver 127.0.0.1:9006`
+	6.3 start web server
+		`cd ../CardioHomeWeb`
+		`python manage.py runserver 127.0.0.1:9010`
+
+7.Start frontend
+	7.0 make sure `npm` and `nodejs` is installed
+	7.1 run `cd ../CardioHomeWeb/static/src/ng/src` to goto the node folder
+	7.2 run `npm install` to install dependencies
+	7.3 run `npm start` to start a static http server
+	7.4 open url `http://127.0.0.1:4200`in browser
+
+
+8. Send mock data
+	8.0 `cd ../SensorSimulator` goto SensorSimulator folder
+	8.1 run 
+		send data to local server: `python hr_sensor.py ws://127.0.0.1:9010/send_patient_data`
+		or send data to aws online demo `python hr_sensor.py ws://ec2-34-210-25-67.us-west-2.compute.amazonaws.com:9010/send_patient_data`
+
